@@ -2,7 +2,7 @@
 SELECT DISTINCT Client.nom,Client.prénom FROM Client 
 JOIN Réservation ON Client.id = Réservation.idClient
 JOIN Hôtel ON Réservation.idChambre = Hôtel.id
-where Client.idVille = Hôtel.idVille;
+WHERE Client.idVille = Hôtel.idVille;
 
 -- Point 2 Le prix minimum, maximum et moyen pour passer une nuit dans une chambre d'hôtel dans la ville de Montreux.
 SELECT min(prixParNuit) AS "Minimum", max(prixParNuit) AS "Maximum", avg(prixParNuit) AS "Moyen" FROM chambre
@@ -10,22 +10,18 @@ JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
 JOIN Ville ON Ville.id = Hôtel.idville
 WHERE Ville.nom = 'Montreux';
 
-
 -- Point 3 Les clients qui n'ont fait des réservations que dans des hôtels de 2 étoiles ou moins.
 SELECT DISTINCT C.id, C.nom, C.prénom
 FROM Client C
 LEFT JOIN Réservation R ON C.id = R.idClient
-LEFT JOIN Chambre CH ON R.idChambre = CH.idHôtel AND R.numéroChambre = CH.numéro
-LEFT JOIN Hôtel H ON CH.idHôtel = H.id
-WHERE H.nbEtoiles <= 2 AND H.id IS NOT NULL
+LEFT JOIN Hôtel H ON R.idChambre = H.id
+WHERE H.nbEtoiles <= 2
   AND NOT EXISTS (
     SELECT 1
     FROM Réservation R2
-    LEFT JOIN Chambre CH2 ON R2.idChambre = CH2.idHôtel AND R2.numéroChambre = CH2.numéro
-    LEFT JOIN Hôtel H2 ON CH2.idHôtel = H2.id
+    LEFT JOIN Hôtel H2 ON R2.idChambre = H2.id
     WHERE C.id = R2.idClient AND H2.nbEtoiles > 2
   );
-
 
 -- Point 4 Le nom des villes avec au moins un hôtel qui n'a aucune réservation.
 SELECT DISTINCT V.nom
@@ -37,7 +33,6 @@ WHERE NOT EXISTS (
     INNER JOIN Chambre CH ON R.idChambre = CH.idHôtel AND R.numéroChambre = CH.numéro
     WHERE CH.idHôtel = H.id
 );
-
 
 -- Point 5 L'hôtel qui a le plus de tarifs de chambres différents.
 SELECT H.id, H.nom AS nom_hôtel, COUNT(DISTINCT CH.prixParNuit) AS nb_tarifs_différents
