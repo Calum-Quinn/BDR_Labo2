@@ -551,5 +551,3 @@ INSERT INTO Réservation (idClient, idChambre, numéroChambre, dateArrivée, dat
 INSERT INTO Réservation (idClient, idChambre, numéroChambre, dateArrivée, dateRéservation, nbNuits, nbPersonnes) VALUES (5, 4, 2, '2023-12-21', '2022-11-21', 14, 1);
 INSERT INTO Réservation (idClient, idChambre, numéroChambre, dateArrivée, dateRéservation, nbNuits, nbPersonnes) VALUES (5, 4, 2, '2021-12-21', '2021-12-21', 5, 1);
 INSERT INTO Réservation (idClient, idChambre, numéroChambre, dateArrivée, dateRéservation, nbNuits, nbPersonnes) VALUES (5, 4, 3, '2024-01-11', '2023-11-21', 2, 1);
-
-
