@@ -21,8 +21,14 @@ WHERE NOT EXISTS (
   WHERE Réservation.idClient = Client.id AND Hôtel.nbetoiles > 2
 );
 
--- Point 4 Le nom des villes avec au moins un hôtel qui n'a aucune réservation.
 
+-- Point 4 Le nom des villes avec au moins un hôtel qui n'a aucune réservation.
+SELECT DISTINCT Ville.nom FROM Ville
+JOIN Hôtel ON Ville.id = Hôtel.idville
+WHERE NOT EXISTS (
+  SELECT 1 FROM Réservation
+  WHERE Réservation.idchambre = Hôtel.id
+);
 
 
 -- Point 5 L'hôtel qui a le plus de tarifs de chambres différents.
