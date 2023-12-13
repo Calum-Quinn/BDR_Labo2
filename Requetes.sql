@@ -70,7 +70,20 @@ ORDER BY SUM(Lit.nbPlaces) DESC;
 
 
 -- Point 9 Les hôtels avec leur classement par ville en fonction du nombre de réservations.
-
+SELECT Hôtel.nom, Ville.nom,
+RANK() OVER (PARTITION BY Ville.nom 
+  ORDER BY SUM(
+    CASE 
+      WHEN Réservation.idchambre = Hôtel.id 
+      THEN 1 
+      ELSE 0 
+    END) 
+  DESC) AS Classement_par_ville
+FROM Hôtel
+JOIN Ville ON Hôtel.idville = Ville.id
+LEFT JOIN Réservation ON Hôtel.id = Réservation.idchambre
+GROUP BY Ville.nom, Hôtel.nom
+ORDER BY Ville.nom, Classement_par_ville;
 
 
 -- Point 10 Lister, par ordre d'arrivée, les prochaines réservations pour l'hôtel "Antique Boutique Hôtel" en indiquant si le client a obtenu un rabais.
