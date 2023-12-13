@@ -43,20 +43,20 @@ LIMIT 1;
 
 
 -- Point 6 Les clients ayant réservé plus d'une fois la même chambre. Indiquer les clients et les chambres concernées.
-SELECT client.id, client.nom, hôtel.nom AS nom_hotel, réservation.numérochambre FROM client 
-INNER JOIN réservation ON réservation.idclient = client.id
-INNER JOIN hôtel ON hôtel.id = réservation.idchambre
-GROUP BY client.id, hôtel.id, réservation.numérochambre
+SELECT Client.id, Client.nom, Hôtel.nom AS nom_hotel, Réservation.numéroChambre FROM Client 
+INNER JOIN Réservation ON Réservation.idClient = Client.id
+INNER JOIN Hôtel ON Hôtel.id = Réservation.idChambre
+GROUP BY Client.id, Hôtel.id, Réservation.numéroChambre
 HAVING COUNT(*) >= 2;
 
 
 -- Point 7 Les membres de l'hôtel "Kurz Alpinhotel" qui n'y ont fait aucune réservation depuis qu'ils en sont devenus membre.
 -- incomplet
-SELECT DISTINCT client.id, client.nom, client.prénom FROM client 
-INNER JOIN Membre ON Membre.idclient = client.id 
-INNER JOIN hôtel ON membre.idhôtel = hôtel.id
-INNER JOIN Réservation ON Réservation.idclient = Membre.idclient 
-WHERE hôtel.nom = 'Kurz Alpinhotel'; 
+SELECT DISTINCT Client.id, Client.nom, Client.prénom FROM Client 
+INNER JOIN Membre ON Membre.idClient = Client.id 
+INNER JOIN Hôtel ON Membre.idHôtel = Hôtel.id
+INNER JOIN Réservation ON Réservation.idClient = Membre.idClient 
+WHERE Hôtel.nom = 'Kurz Alpinhotel'; 
 
 -- Point 8 Les villes, classées dans l'ordre décroissant de leur capacité d'accueil totale (nombre de places des lits de leurs hôtels).
 SELECT Ville.nom FROM Ville
