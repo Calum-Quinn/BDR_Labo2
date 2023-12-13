@@ -70,9 +70,20 @@ LIMIT 1;
 
 
 
--- Point 13 Pour l'hôtel "Hôtel Royal", lister toutes les réservations en indiquant de combien de jours elles ont été faites à l'avance (avant la date d'arrivée) ainsi que si la réservation a été faite en tant que membre de l'hôtel. Trier les résultats par ordre des réservations (en 1er celles faites le plus à l’avance), puis par clients (ordre croissant du nom puis du prénom).
-
-
+-- Point 13 Pour l'hôtel "Hôtel Royal", lister toutes les réservations en indiquant de combien de jours elles ont été faites à l'avance 
+-- (avant la date d'arrivée) ainsi que si la réservation a été faite en tant que membre de l'hôtel. 
+-- Trier les résultats par ordre des réservations (en 1er celles faites le plus à l’avance), puis par clients (ordre croissant du nom puis du prénom).
+SELECT Client.id, Client.nom, Client.prénom, 
+  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Membre, Hôtel.nom, Chambre.numéro AS numérochambre, 
+  TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée, 
+  TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, 
+  (Réservation.datearrivée - Réservation.dateréservation) AS Avance, Réservation.nbnuits, Réservation.nbpersonnes
+FROM Réservation
+JOIN Client ON Réservation.idclient = Client.id
+JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
+JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Hôtel Royal'
+LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
+ORDER BY Avance DESC, Client.nom, Client.prénom;
 
 -- Point 14 Calculer le prix total de toutes les réservations faites pour l'hôtel "Hôtel Royal".
 SELECT sum((Chambre.prixparnuit * Réservation.nbnuits) * (100 - (CASE 
@@ -86,3 +97,4 @@ JOIN Hôtel ON Réservation.idChambre = Hôtel.id
 JOIN Chambre ON Hôtel.id = Chambre.idHôtel AND Chambre.numéro = Réservation.numérochambre
 LEFT JOIN Membre ON Hôtel.id = Membre.idhôtel AND Membre.idclient = Réservation.idclient
 WHERE Hôtel.nom = 'Hôtel Royal';
+
