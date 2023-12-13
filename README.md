@@ -25,15 +25,26 @@ JOIN Hôtel ON Réservation.idChambre = Hôtel.id
 WHERE Client.idVille = Hôtel.idVille;
 ```
 
+
 ### Requête 2 :
+#### Enoncé :
 Le prix minimum, maximum et moyen pour passer une nuit dans une chambre d'hôtel dans la ville de Montreux.
 
+#### Requête :
 ```sql
 SELECT min(prixParNuit) AS "Minimum", max(prixParNuit) AS "Maximum", avg(prixParNuit) AS "Moyen" FROM chambre
 JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
 JOIN Ville ON Ville.id = Hôtel.idville
 WHERE Ville.nom = 'Montreux';
 ```
+
+#### Resultat :
+| id   | nom         | prénom      |
+|------|-------------|-------------|
+| 1    | Dupont      | Jean        |
+| 3    | Tremblay    | Marie       |
+| 5    | Leroy       | Pierre      |
+
 
 ### Requête 3 :
 Les clients qui n'ont fait des réservations que dans des hôtels de 2 étoiles ou moins.
