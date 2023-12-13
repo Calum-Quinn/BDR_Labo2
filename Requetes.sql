@@ -87,7 +87,17 @@ ORDER BY Ville.nom, Classement_par_ville;
 
 
 -- Point 10 Lister, par ordre d'arrivée, les prochaines réservations pour l'hôtel "Antique Boutique Hôtel" en indiquant si le client a obtenu un rabais.
-
+SELECT Client.id, Client.nom, Client.prénom, 
+  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Rabais, Hôtel.nom, Chambre.numéro AS numérochambre, 
+  TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée, 
+  TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, Réservation.nbnuits, Réservation.nbpersonnes
+FROM Réservation
+JOIN Client ON Réservation.idclient = Client.id
+JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
+JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Antique Boutique Hôtel'
+LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
+WHERE Réservation.datearrivée > now()
+ORDER BY Réservation.datearrivée;
 
 
 -- Point 11 Les réservations faites dans des chambres qui ont un nombre de lits supérieur au nombre de personnes de la réservation.
