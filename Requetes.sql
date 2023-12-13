@@ -82,7 +82,14 @@ ORDER BY SUM(Lit.nbPlaces) DESC;
 
 
 -- Point 12 Les chambres à Lausanne ayant au moins une TV et un lit à 2 places.
-
+SELECT Hôtel.nom, Chambre.numéro FROM Chambre
+JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
+JOIN Ville ON Hôtel.idville = Ville.id AND Ville.nom = 'Lausanne'
+JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre AND Chambre.numéro = chambre_equipement.numérochambre
+LEFT JOIN Equipement ON chambre_equipement.idequipement = Equipement.id AND Equipement.nom = 'TV'
+LEFT JOIN Lit ON chambre_equipement.idequipement = Lit.idequipement AND Lit.nbplaces > 1
+GROUP BY Hôtel.nom, Chambre.numéro
+HAVING count(Equipement) > 0 AND max(Lit.nbPlaces) > 1;
 
 
 -- Point 13 Pour l'hôtel "Hôtel Royal", lister toutes les réservations en indiquant de combien de jours elles ont été faites à l'avance 
