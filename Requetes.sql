@@ -88,8 +88,8 @@ ORDER BY Ville.nom, Classement_par_ville;
 
 -- Point 10 Lister, par ordre d'arrivée, les prochaines réservations pour l'hôtel "Antique Boutique Hôtel" en indiquant si le client a obtenu un rabais.
 SELECT Client.id, Client.nom, Client.prénom, 
-  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Rabais, Hôtel.nom, Chambre.numéro AS numérochambre, 
-  TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée, 
+  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Rabais, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
+  TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée,
   TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, Réservation.nbnuits, Réservation.nbpersonnes
 FROM Réservation
 JOIN Client ON Réservation.idclient = Client.id
@@ -101,7 +101,18 @@ ORDER BY Réservation.datearrivée;
 
 
 -- Point 11 Les réservations faites dans des chambres qui ont un nombre de lits supérieur au nombre de personnes de la réservation.
-
+SELECT Client.id, Client.nom, Client.prénom, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
+  TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée,
+  TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, Réservation.nbnuits, Réservation.nbpersonnes
+FROM Réservation
+JOIN Client ON Réservation.idclient = Client.id
+JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel 
+  AND Réservation.numérochambre = Chambre.numéro
+JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre 
+  AND Chambre.numéro = chambre_equipement.numérochambre 
+  AND chambre_equipement.quantité > Réservation.nbpersonnes
+JOIN Hôtel ON Réservation.idchambre = Hôtel.id
+ORDER BY Hôtel, Chambre.numéro;
 
 
 -- Point 12 Les chambres à Lausanne ayant au moins une TV et un lit à 2 places.
@@ -119,7 +130,7 @@ HAVING count(Equipement) > 0 AND max(Lit.nbPlaces) > 1;
 -- (avant la date d'arrivée) ainsi que si la réservation a été faite en tant que membre de l'hôtel. 
 -- Trier les résultats par ordre des réservations (en 1er celles faites le plus à l’avance), puis par clients (ordre croissant du nom puis du prénom).
 SELECT Client.id, Client.nom, Client.prénom, 
-  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Membre, Hôtel.nom, Chambre.numéro AS numérochambre, 
+  (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Membre, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
   TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée, 
   TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, 
   (Réservation.datearrivée - Réservation.dateréservation) AS Avance, Réservation.nbnuits, Réservation.nbpersonnes
