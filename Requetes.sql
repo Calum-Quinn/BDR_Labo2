@@ -75,3 +75,14 @@ LIMIT 1;
 
 
 -- Point 14 Calculer le prix total de toutes les réservations faites pour l'hôtel "Hôtel Royal".
+SELECT sum((Chambre.prixparnuit * Réservation.nbnuits) * (100 - (CASE 
+                                                                    WHEN Membre IS NOT NULL
+                                                                    AND Réservation.dateréservation > Membre.depuis 
+                                                                    THEN Hôtel.rabaismembre 
+                                                                    ELSE 0
+                                                                  END))/ 100)
+FROM Réservation
+JOIN Hôtel ON Réservation.idChambre = Hôtel.id
+JOIN Chambre ON Hôtel.id = Chambre.idHôtel AND Chambre.numéro = Réservation.numérochambre
+LEFT JOIN Membre ON Hôtel.id = Membre.idhôtel AND Membre.idclient = Réservation.idclient
+WHERE Hôtel.nom = 'Hôtel Royal';
