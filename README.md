@@ -8,7 +8,23 @@
 ## Sommaire
 - [Introduction](#introduction)
 - [Partie 1 - Requêtes](#partie-1-requetes)
+  - [Point 1](#point-1)
+  - [Point 2](#point-2)
+  - [Point 3](#point-3)
+  - [Point 4](#point-4)
+  - [Point 5](#point-5)
+  - [Point 6](#point-6)
+  - [Point 7](#point-7)
+  - [Point 8](#point-8)
+  - [Point 9](#point-9)
+  - [Point 10](#point-10)
+  - [Point 11](#point-11)
+  - [Point 12](#point-12)
+  - [Point 13](#point-13)
+  - [Point 14](#point-14)
 - [Partie 2 - CI](#partie-2-ci)
+  - [Script pour la CI](#script-pour-la-ci)
+  - [Tests effectués](#tests-effectues)
 - [Conclusion](#conclusion)
 
 ## Introduction
@@ -19,6 +35,7 @@ La deuxième partie contient un petit script qui vient s'ajouter aux requêtes p
 
 ### Point 1
 Les clients ayant fait au moins une réservation dans un hôtel se trouvant dans la ville dans laquelle ils habitent.
+
 ```sql
 SELECT DISTINCT Client.id,Client.nom,Client.prénom FROM Client 
 JOIN Réservation ON Client.id = Réservation.idClient
@@ -29,6 +46,7 @@ WHERE Client.idVille = Hôtel.idVille;
 
 ### Point 2
 Le prix minimum, maximum et moyen pour passer une nuit dans une chambre d'hôtel dans la ville de Montreux.
+
 ```sql
 SELECT min(prixParNuit) AS "Minimum", max(prixParNuit) AS "Maximum", avg(prixParNuit) AS "Moyen" FROM chambre
 JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
@@ -40,6 +58,7 @@ WHERE Ville.nom = 'Montreux';
 
 ### Point 3
 Les clients qui n'ont fait des réservations que dans des hôtels de 2 étoiles ou moins.
+
 ```sql
 SELECT DISTINCT Client.id, Client.nom, Client.prénom FROM Client
 LEFT JOIN Réservation ON Client.id = Réservation.idClient
@@ -57,6 +76,7 @@ WHERE Hôtel.nbEtoiles <= 2
 
 ### Point 4
 Le nom des villes avec au moins un hôtel qui n'a aucune réservation.
+
 ```sql
 SELECT DISTINCT Ville.nom FROM Ville
 JOIN Hôtel ON Ville.id = Hôtel.idville
@@ -70,6 +90,7 @@ WHERE NOT EXISTS (
 
 ### Point 5
 L'hôtel qui a le plus de tarifs de chambres différents.
+
 ```sql
 SELECT Hôtel.nom AS nom_hôtel, COUNT(DISTINCT Chambre.prixParNuit) AS nb_tarifs_différents
 FROM Hôtel
@@ -83,6 +104,7 @@ LIMIT 1;
 
 ### Point 6
 Les clients ayant réservé plus d'une fois la même chambre. Indiquer les clients et les chambres concernées.
+
 ```sql
 SELECT Client.id, Client.nom, Hôtel.nom AS nom_hotel, Réservation.numéroChambre FROM Client 
 INNER JOIN Réservation ON Réservation.idClient = Client.id
@@ -95,6 +117,7 @@ HAVING COUNT(*) >= 2;
 
 ### Point 7
 Les membres de l'hôtel "Kurz Alpinhotel" qui n'y ont fait aucune réservation depuis qu'ils en sont devenus membre.
+
 ```sql
 SELECT DISTINCT Client.id, Client.nom, Client.prénom FROM Client 
 INNER JOIN Membre ON Membre.idClient = Client.id 
@@ -109,6 +132,7 @@ HAVING count(Réservation) = 0;
 
 ### Point 8
 Les villes, classées dans l'ordre décroissant de leur capacité d'accueil totale (nombre de places des lits de leurs hôtels).
+
 ```sql
 SELECT Ville.nom FROM Ville
 JOIN Hôtel ON Ville.id = Hôtel.idVille
@@ -123,8 +147,10 @@ ORDER BY SUM(Lit.nbPlaces) DESC;
 
 ### Point 9
 Les hôtels avec leur classement par ville en fonction du nombre de réservations.
+
 ```sql
-SELECT Hôtel.nom AS Hôtel, Ville.nom AS Ville,
+SELECT Hôtel.nom, Ville.nom,
+>>>>>>> 40efbb56dc8dd605ff11fb01f2ed6edf54656bda
 RANK() OVER (PARTITION BY Ville.nom 
   ORDER BY SUM(
     CASE 
@@ -144,6 +170,7 @@ ORDER BY Ville.nom, Classement_par_ville;
 
 ### Point 10
 Lister, par ordre d'arrivée, les prochaines réservations pour l'hôtel "Antique Boutique Hôtel" en indiquant si le client a obtenu un rabais.
+
 ```sql
 SELECT Client.id, Client.nom, Client.prénom, 
   (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Rabais, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
@@ -162,6 +189,7 @@ ORDER BY Réservation.datearrivée;
 
 ### Point 11
 Les réservations faites dans des chambres qui ont un nombre de lits supérieur au nombre de personnes de la réservation.
+
 ```sql
 SELECT Client.id, Client.nom, Client.prénom, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
   TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée,
@@ -181,8 +209,10 @@ ORDER BY Hôtel, Chambre.numéro;
 
 ### Point 12
 Les chambres à Lausanne ayant au moins une TV et un lit à 2 places.
+
 ```sql
-SELECT Hôtel.nom AS Hôtel, Chambre.numéro AS numéroChambre FROM Chambre
+SELECT Hôtel.nom, Chambre.numéro FROM Chambre
+>>>>>>> 40efbb56dc8dd605ff11fb01f2ed6edf54656bda
 JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
 JOIN Ville ON Hôtel.idville = Ville.id AND Ville.nom = 'Lausanne'
 JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre AND Chambre.numéro = chambre_equipement.numérochambre
@@ -195,9 +225,9 @@ HAVING count(Equipement) > 0 AND max(Lit.nbPlaces) > 1;
 ![Point 12](Images/Point12.png)
 
 ### Point 13
-Pour l'hôtel "Hôtel Royal", lister toutes les réservations en indiquant de combien de jours elles ont été faites à l'avance 
-(avant la date d'arrivée) ainsi que si la réservation a été faite en tant que membre de l'hôtel. 
-Trier les résultats par ordre des réservations (en 1er celles faites le plus à l’avance), puis par clients (ordre croissant du nom puis du prénom).
+Pour l'hôtel "Hôtel Royal", lister toutes les réservations en indiquant de combien de jours elles ont été faites à l'avance (avant la date d'arrivée) ainsi que si la réservation a été faite
+en tant que membre de l'hôtel. Trier les résultats par ordre des réservations (en 1er celles faites le plus à l’avance), puis par clients (ordre croissant du nom puis du prénom).
+
 ```sql
 SELECT Client.id, Client.nom, Client.prénom, 
   (Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis) AS Membre, Hôtel.nom AS Hôtel, Chambre.numéro AS numérochambre, 
@@ -216,6 +246,7 @@ ORDER BY Avance DESC, Client.nom, Client.prénom;
 
 ### Point 14
 Calculer le prix total de toutes les réservations faites pour l'hôtel "Hôtel Royal".
+
 ```sql
 SELECT sum((Chambre.prixparnuit * Réservation.nbnuits) * (100 - (CASE 
                                                                     WHEN Membre IS NOT NULL
@@ -259,7 +290,32 @@ EXECUTE FUNCTION controleNomLit();
 
 Nous avons essayer d'ajouter des équipements avec des noms variés contenant parfois le mot lit et parfois pas.
 ```sql
-
+INSERT INTO Equipement(nom) VALUES ('Li Queen size');
+INSERT INTO Equipement(nom) VALUES ('Lits Queen size');
+INSERT INTO Equipement(nom) VALUES ('Literie Queen size');
+INSERT INTO Equipement(nom) VALUES ('liT Queen size');
+INSERT INTO Equipement(nom) VALUES ('LIT Queen size');
+INSERT INTO Equipement(nom) VALUES ('lit Queen size');
+INSERT INTO Equipement(nom) VALUES ('Li t Queen size');
+INSERT INTO Equipement(nom) VALUES ('Queen Lit size');
+INSERT INTO Equipement(nom) VALUES ('Queen LIT size');
+INSERT INTO Equipement(nom) VALUES ('Queen lit size');
+INSERT INTO Equipement(nom) VALUES ('Queen litière size');
+INSERT INTO Equipement(nom) VALUES ('Queen Li t size');
+INSERT INTO Equipement(nom) VALUES ('Queen Li size');
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (8, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (9, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (10, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (11, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (12, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (13, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (14, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (15, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (16, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (17, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (18, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (19, 2);
+INSERT INTO Lit(idEquipement, nbPlaces) VALUES (20, 2);
 ```
 
 Les résultats des insertions suivants sont les suivantes:
