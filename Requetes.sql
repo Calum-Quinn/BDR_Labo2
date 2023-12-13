@@ -70,7 +70,7 @@ ORDER BY SUM(Lit.nbPlaces) DESC;
 
 
 -- Point 9 Les hôtels avec leur classement par ville en fonction du nombre de réservations.
-SELECT Hôtel.nom, Ville.nom,
+SELECT Hôtel.nom AS Hôtel, Ville.nom AS Ville,
 RANK() OVER (PARTITION BY Ville.nom 
   ORDER BY SUM(
     CASE 
@@ -116,7 +116,7 @@ ORDER BY Hôtel, Chambre.numéro;
 
 
 -- Point 12 Les chambres à Lausanne ayant au moins une TV et un lit à 2 places.
-SELECT Hôtel.nom, Chambre.numéro FROM Chambre
+SELECT Hôtel.nom AS Hôtel, Chambre.numéro AS numéroChambre FROM Chambre
 JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
 JOIN Ville ON Hôtel.idville = Ville.id AND Ville.nom = 'Lausanne'
 JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre AND Chambre.numéro = chambre_equipement.numérochambre
