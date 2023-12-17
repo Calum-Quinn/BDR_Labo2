@@ -1,10 +1,12 @@
-# BDR_Labo2
+# Laboratoire 2 - DDL DML
 
 **Groupe :** numéro 7
+
 **Auteurs :** Piemontesi Gwendal, Quinn Calum, Trüeb Guillaume
+
 **Date :** 17 décembre 2023
 
----
+<div style="page-break-after: always;"></div>
 
 ## Sommaire
 
@@ -29,11 +31,16 @@
   - [Tests effectués](#tests-effectues)
 - [Conclusion](#conclusion)
 
+<div style="page-break-after: always;"></div>
+
 ## Introduction
 
-L'objectif de ce laboratoire était de pratiquer les commandes SQL en répondant à une série de questions. Ces questions se basaient sur un schéma EA ainsi que le script permettant de créer la base de données et d'y insérer des tupples. Il nous a été demandé de fournir un rapport celui-ci est constitué de deux parties. 
+L'objectif de ce laboratoire était de pratiquer les commandes SQL en répondant à une série de questions. Ces questions se basaient sur un schéma EA ainsi que le script permettant de créer la base de données et d'y insérer des tupples. Il nous a été demandé de fournir un rapport celui-ci est constitué de deux parties.
+
 La première résumant les différentes points demandés avec les requêtes que nous avons écrites ainsi que le résultat obtenu pour chaque requête.
 La deuxième partie contient un script qui vient s'ajouter aux requêtes pour implémenter une contrainte d'intégrité qui n'autorise pas d'équipement lit avec un nom ne contenant pas le mot `lit` ainsi que les tests que nous avons effectués.
+
+<div style="page-break-after: always;"></div>
 
 ## Partie 1 - Requêtes
 
@@ -41,10 +48,10 @@ La deuxième partie contient un script qui vient s'ajouter aux requêtes pour im
 
 Les clients ayant fait au moins une réservation dans un hôtel se trouvant dans la ville dans laquelle ils habitent.
 
-```sql
+```SQL
 SELECT DISTINCT Client.id,Client.nom,Client.prénom FROM Client 
-JOIN Réservation ON Client.id = Réservation.idClient
-JOIN Hôtel ON Réservation.idChambre = Hôtel.id
+	INNER JOIN Réservation ON Client.id = Réservation.idClient
+	INNER JOIN Hôtel ON Réservation.idChambre = Hôtel.id
 WHERE Client.idVille = Hôtel.idVille;
 ```
 
@@ -56,28 +63,27 @@ Le prix minimum, maximum et moyen pour passer une nuit dans une chambre d'hôtel
 
 ```sql
 SELECT min(prixParNuit) AS "Minimum", max(prixParNuit) AS "Maximum", avg(prixParNuit) AS "Moyen" FROM chambre
-JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
-JOIN Ville ON Ville.id = Hôtel.idville
+	INNER JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
+	INNER JOIN Ville ON Ville.id = Hôtel.idville
 WHERE Ville.nom = 'Montreux';
 ```
 
 ![Point 2](Images/Point2.png)
+
+
+<div style="page-break-after: always;"></div>
 
 ### Point 3
 
 Les clients qui n'ont fait des réservations que dans des hôtels de 2 étoiles ou moins.
 
 ```sql
-SELECT DISTINCT Client.id, Client.nom, Client.prénom FROM Client
-LEFT JOIN Réservation ON Client.id = Réservation.idClient
-LEFT JOIN Hôtel ON Réservation.idChambre = Hôtel.id
-WHERE Hôtel.nbEtoiles <= 2
-  AND NOT EXISTS (
-    SELECT 1
-    FROM Réservation R2
-    LEFT JOIN Hôtel H2 ON R2.idChambre = H2.id
-    WHERE Client.id = R2.idClient AND H2.nbEtoiles > 2
-  );
+SELECT Client.id, Client.nom, Client.prénom
+FROM Client
+	 INNER JOIN Réservation ON Client.id = Réservation.idClient
+	 INNER JOIN Hôtel ON Réservation.idChambre = Hôtel.id
+GROUP BY Client.id, Client.nom, Client.prénom
+HAVING COUNT(Réservation) FILTER (WHERE Hôtel.nbEtoiles > 2) = 0;
 ```
 
 ![Point 3](Images/Point3.png)
@@ -87,15 +93,16 @@ WHERE Hôtel.nbEtoiles <= 2
 Le nom des villes avec au moins un hôtel qui n'a aucune réservation.
 
 ```sql
-SELECT DISTINCT Ville.nom FROM Ville
-JOIN Hôtel ON Ville.id = Hôtel.idville
-WHERE NOT EXISTS (
-  SELECT 1 FROM Réservation
-  WHERE Réservation.idchambre = Hôtel.id
-);
+SELECT DISTINCT Ville.nom
+FROM Hôtel
+	INNER JOIN Ville ON Ville.id = Hôtel.idVille
+	LEFT JOIN Réservation ON Réservation.idChambre = Hôtel.id
+WHERE Réservation IS NULL;
 ```
 
 ![Point 4](Images/Point4.png)
+
+<div style="page-break-after: always;"></div>
 
 ### Point 5
 
@@ -104,7 +111,7 @@ L'hôtel qui a le plus de tarifs de chambres différents.
 ```sql
 SELECT Hôtel.nom AS nom_hôtel, COUNT(DISTINCT Chambre.prixParNuit) AS nb_tarifs_différents
 FROM Hôtel
-JOIN Chambre ON Hôtel.id = Chambre.idHôtel
+	INNER JOIN Chambre ON Hôtel.id = Chambre.idHôtel
 GROUP BY Hôtel.id, Hôtel.nom
 ORDER BY nb_tarifs_différents DESC
 LIMIT 1;
@@ -118,13 +125,16 @@ Les clients ayant réservé plus d'une fois la même chambre. Indiquer les clien
 
 ```sql
 SELECT Client.id, Client.nom, Hôtel.nom AS nom_hotel, Réservation.numéroChambre FROM Client 
-INNER JOIN Réservation ON Réservation.idClient = Client.id
-INNER JOIN Hôtel ON Hôtel.id = Réservation.idChambre
+	INNER JOIN Réservation ON Réservation.idClient = Client.id
+	INNER JOIN Hôtel ON Hôtel.id = Réservation.idChambre
 GROUP BY Client.id, Hôtel.id, Réservation.numéroChambre
 HAVING COUNT(*) >= 2;
 ```
 
 ![Point 6](Images/Point6.png)
+
+
+<div style="page-break-after: always;"></div>
 
 ### Point 7
 
@@ -132,9 +142,9 @@ Les membres de l'hôtel "Kurz Alpinhotel" qui n'y ont fait aucune réservation d
 
 ```sql
 SELECT DISTINCT Client.id, Client.nom, Client.prénom FROM Client 
-INNER JOIN Membre ON Membre.idClient = Client.id 
-INNER JOIN Hôtel ON Membre.idHôtel = Hôtel.id
-LEFT JOIN Réservation ON Membre.idclient = Réservation.idclient AND Réservation.dateréservation > Membre.depuis
+	INNER JOIN Membre ON Membre.idClient = Client.id 
+	INNER JOIN Hôtel ON Membre.idHôtel = Hôtel.id
+	LEFT JOIN Réservation ON Membre.idclient = Réservation.idclient AND 				Réservation.dateréservation > Membre.depuis
 WHERE Hôtel.nom = 'Kurz Alpinhotel'
 GROUP BY Client.id
 HAVING count(Réservation) = 0;
@@ -148,15 +158,18 @@ Les villes, classées dans l'ordre décroissant de leur capacité d'accueil tota
 
 ```sql
 SELECT Ville.nom FROM Ville
-JOIN Hôtel ON Ville.id = Hôtel.idVille
-JOIN Chambre ON Hôtel.id = Chambre.idHôtel
-JOIN Chambre_Equipement ON Chambre.idHôtel = Chambre_Equipement.idChambre
-JOIN Lit ON Chambre_Equipement.idEquipement = Lit.idEquipement
+	INNER JOIN Hôtel ON Ville.id = Hôtel.idVille
+	INNER JOIN Chambre ON Hôtel.id = Chambre.idHôtel
+	INNER JOIN Chambre_Equipement ON Chambre.idHôtel = Chambre_Equipement.idChambre
+	INNER JOIN Lit ON Chambre_Equipement.idEquipement = Lit.idEquipement
 GROUP BY Ville.nom
 ORDER BY SUM(Lit.nbPlaces) DESC;
 ```
 
 ![Point 8](Images/Point8.png)
+
+
+<div style="page-break-after: always;"></div>
 
 ### Point 9
 
@@ -173,13 +186,15 @@ RANK() OVER (PARTITION BY Ville.nom
     END) 
   DESC) AS Classement_par_ville
 FROM Hôtel
-JOIN Ville ON Hôtel.idville = Ville.id
-LEFT JOIN Réservation ON Hôtel.id = Réservation.idchambre
+	INNER JOIN Ville ON Hôtel.idville = Ville.id
+	LEFT JOIN Réservation ON Hôtel.id = Réservation.idchambre
 GROUP BY Ville.nom, Hôtel.nom
 ORDER BY Ville.nom, Classement_par_ville;
 ```
 
 ![Point 9](Images/Point9.png)
+
+<div style="page-break-after: always;"></div>
 
 ### Point 10
 
@@ -191,15 +206,18 @@ SELECT Client.id, Client.nom, Client.prénom,
   TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée,
   TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, Réservation.nbnuits, Réservation.nbpersonnes
 FROM Réservation
-JOIN Client ON Réservation.idclient = Client.id
-JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
-JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Antique Boutique Hôtel'
-LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
+	INNER JOIN Client ON Réservation.idclient = Client.id
+	INNER JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
+	INNER JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Antique Boutique Hôtel'
+	LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
 WHERE Réservation.datearrivée > now()
 ORDER BY Réservation.datearrivée;
 ```
 
 ![Point 10](Images/Point10.png)
+
+
+<div style="page-break-after: always;"></div>
 
 ### Point 11
 
@@ -210,34 +228,39 @@ SELECT Client.id, Client.nom, Client.prénom, Hôtel.nom AS Hôtel, Chambre.num�
   TO_CHAR(Réservation.datearrivée,'DD.MM.YYYY') AS datearrivée,
   TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, Réservation.nbnuits, Réservation.nbpersonnes
 FROM Réservation
-JOIN Client ON Réservation.idclient = Client.id
-JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel 
+	INNER JOIN Client ON Réservation.idclient = Client.id
+	INNER JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel 
   AND Réservation.numérochambre = Chambre.numéro
-JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre 
+	INNER JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre 
   AND Chambre.numéro = chambre_equipement.numérochambre 
   AND chambre_equipement.quantité > Réservation.nbpersonnes
-JOIN Hôtel ON Réservation.idchambre = Hôtel.id
+	INNER JOIN Hôtel ON Réservation.idchambre = Hôtel.id
 ORDER BY Hôtel, Chambre.numéro;
 ```
 
 ![Point 11](Images/Point11.png)
+
+<div style="page-break-after: always;"></div>
 
 ### Point 12
 
 Les chambres à Lausanne ayant au moins une TV et un lit à 2 places.
 
 ```sql
-SELECT Hôtel.nom, Chambre.numéro FROM Chambre
-JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
-JOIN Ville ON Hôtel.idville = Ville.id AND Ville.nom = 'Lausanne'
-JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre AND Chambre.numéro = chambre_equipement.numérochambre
-LEFT JOIN Equipement ON chambre_equipement.idequipement = Equipement.id AND Equipement.nom = 'TV'
+SELECT Hôtel.nom, Chambre.numéro 
+FROM Chambre
+	INNER JOIN Hôtel ON Chambre.idhôtel = Hôtel.id
+	INNER JOIN Ville ON Hôtel.idville = Ville.id AND Ville.nom = 'Lausanne'
+	INNER JOIN chambre_equipement ON Chambre.idhôtel = chambre_equipement.idchambre AND Chambre.numéro = chambre_equipement.numérochambre
+	LEFT JOIN Equipement ON chambre_equipement.idequipement = Equipement.id AND Equipement.nom = 'TV'
 LEFT JOIN Lit ON chambre_equipement.idequipement = Lit.idequipement AND Lit.nbplaces > 1
 GROUP BY Hôtel.nom, Chambre.numéro
 HAVING count(Equipement) > 0 AND max(Lit.nbPlaces) > 1;
 ```
 
 ![Point 12](Images/Point12.png)
+
+<div style="page-break-after: always;"></div>
 
 ### Point 13
 
@@ -251,14 +274,18 @@ SELECT Client.id, Client.nom, Client.prénom,
   TO_CHAR(Réservation.dateréservation,'DD.MM.YYYY') AS dateréservation, 
   (Réservation.datearrivée - Réservation.dateréservation) AS Avance, Réservation.nbnuits, Réservation.nbpersonnes
 FROM Réservation
-JOIN Client ON Réservation.idclient = Client.id
-JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
-JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Hôtel Royal'
-LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
+	INNER JOIN Client ON Réservation.idclient = Client.id
+	INNER JOIN Chambre ON Réservation.idchambre = Chambre.idhôtel AND Réservation.numérochambre = Chambre.numéro
+	INNER JOIN Hôtel ON Réservation.idchambre = Hôtel.id AND Hôtel.nom = 'Hôtel Royal'
+	LEFT JOIN Membre ON Client.id = Membre.idclient AND Hôtel.id = Membre.idhôtel
 ORDER BY Avance DESC, Client.nom, Client.prénom;
 ```
 
 ![Point 13](Images/Point13.png)
+
+
+<div style="page-break-after: always;"></div>
+
 
 ### Point 14
 
@@ -266,19 +293,20 @@ Calculer le prix total de toutes les réservations faites pour l'hôtel "Hôtel 
 
 ```sql
 SELECT sum((Chambre.prixparnuit * Réservation.nbnuits) * (100 - (CASE 
-                                                                    WHEN Membre IS NOT NULL
-                                                                    AND Réservation.dateréservation > Membre.depuis 
-                                                                    THEN Hôtel.rabaismembre 
-                                                                    ELSE 0
-                                                                  END))/ 100)
+WHEN Membre IS NOT NULL AND Réservation.dateréservation > Membre.depuis 
+	THEN Hôtel.rabaismembre 
+	ELSE 0
+END))/ 100)
 FROM Réservation
-JOIN Hôtel ON Réservation.idChambre = Hôtel.id
-JOIN Chambre ON Hôtel.id = Chambre.idHôtel AND Chambre.numéro = Réservation.numérochambre
-LEFT JOIN Membre ON Hôtel.id = Membre.idhôtel AND Membre.idclient = Réservation.idclient
+	INNER JOIN Hôtel ON Réservation.idChambre = Hôtel.id
+	INNER JOIN Chambre ON Hôtel.id = Chambre.idHôtel AND Chambre.numéro = Réservation.numérochambre
+	INNER LEFT JOIN Membre ON Hôtel.id = Membre.idhôtel AND Membre.idclient = Réservation.idclient
 WHERE Hôtel.nom = 'Hôtel Royal';
 ```
 
 ![Point 14](Images/Point14.png)
+
+<div style="page-break-after: always;"></div>
 
 ## Partie 2 - CI
 
@@ -351,6 +379,8 @@ Les résultats des insertions suivants sont les suivantes:
 - Ok
 - Erreur ("Li t")
 - Erreur ("Li ")
+
+<div style="page-break-after: always;"></div>
 
 ## Conclusion
 
